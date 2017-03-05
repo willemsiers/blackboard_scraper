@@ -54,17 +54,19 @@ def sanitize(filename):
             return filename
     return filename
 
-#class for scraping iLectures from echo360. 
+#class for scraping iLectures from echo360.
 class ILectureUnit():
     def __init__(self, link, name):
+        print('ILectureUnit.__init__() link: {link!r}, name:  {name!r}'.format(link=link, name=name))
         self.link = link
         self.name = name
         self.session = requests.Session()
-        
+
     #scrapes iLectures from a particular rss feed
     #path: path of the root unit directory
     @staticmethod
     def scrape_ilectures(url, path):
+        print('ILectureUnit.scrape_ilectures() url: {url!r}, path:  {path!r}'.format(url=url, path=path))
         session = requests.Session()
         request = session.get(url)
         soup = BeautifulSoup(request.text, "html.parser")
@@ -81,7 +83,7 @@ class ILectureUnit():
         for jj in alist:
             ILectureUnit.fetch_video(blist[ii], dir, unit_name, jj, path)
             ii = ii + 1
-            
+
     #downloads a single iLecture video
     #file_url: the url of the video
     #directory: the directory to save to
@@ -90,6 +92,7 @@ class ILectureUnit():
     #path: root directory to save in
     @staticmethod
     def fetch_video(file_url, directory, unit_name, file_name, path):
+        print('ILectureUnit.fetch_video() directory: {directory!r}, unit_name:  {unit_name!r}, file_name:  {file_name!r}, path:  {path!r}'.format(directory=directory, unit_name=unit_name, file_name=file_name, path=path))
         session = requests.Session()
         file_name = string.replace(file_name, ':', '-')
         if '.' in file_name:
@@ -122,7 +125,7 @@ class BlackboardUnit():
         self.uid = uid
         self.name = name
         self.session = session
-    
+
     #downloads a single document - does some checks on the filename to make sure it is legit
     #file url: the url of the file
     #folder name: the subfolder which the file will be downloaded to
@@ -139,9 +142,9 @@ class BlackboardUnit():
         urlResponse = self.session.get(file_url, allow_redirects=False)
         if urlResponse.status_code == 302:
             urlpath = urlResponse.headers['location']
-        else: 
+        else:
             urlpath = urlResponse.url
-            
+
         if len(folder_name) > 0:
             thepath = path + '/' + self.name + '/' + folder_name + '/'
         else:
@@ -173,7 +176,7 @@ class BlackboardUnit():
                         file.write(urlResponse.content)
                 else:
                     return False
-     
+
     #scrapes a page (and all pages on the page)
     #content_id: the content ID number for the page
     #folder_name: the 'name' of the page - this is what the folder will be called when saving documents from this page
@@ -197,7 +200,7 @@ class BlackboardUnit():
                     self.fetch_document('https://lms.curtin.edu.au/' + link, folder_name, path)
                 except:
                     print "Error: %s -  %s" % (sys.exc_info()[0], str(sys.exc_info()[1]))
-                    
+
         for htmlLink in soup.find_all('a'):
             link = htmlLink.get('href')
             if link.startswith('https://lms.curtin.edu.au/webapps/blackboard/content/listContent.jsp?') or link.startswith('/webapps/blackboard/content/listContent.jsp?'):
@@ -264,7 +267,7 @@ class BlackboardSession():
         self.session.post(self.url, data=self.payload)
         self.getUnitList()
         self.getILectureList()
-        
+
     #gets all available units for current logged in user
     def getUnitList(self):
         response = self.session.get('https://lms.curtin.edu.au/webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_3_1')
@@ -278,7 +281,7 @@ class BlackboardSession():
                               , '')
                 link = link.replace('_1&url=', '')
                 self.unitList.append(BlackboardUnit(link, htmlLink.string.replace('/',''), self.session))
-    
+
     #gets all available iLectures for current logged in user
     def getILectureList(self):
         try:
@@ -401,7 +404,7 @@ class scrapergui(Frame):
         self.__Frame9.pack(side='top', padx=5, pady=45)
         self.__Frame8 = Frame(self.__RFrame)
         self.__Frame8.pack(side='top', padx=5, pady=15)
-        
+
 
     #open lms to get the rss link
     def __on_Button5_ButRel_1(self, Event=None):
@@ -409,12 +412,12 @@ class scrapergui(Frame):
             url = self.blackboard_session.iLectureList[lecs].link
             webbrowser.open('https://lms.curtin.edu.au' + url, new=1,
                             autoraise=True)
-    
+
     #scrape ilectures
     def __on_Button4_ButRel_1(self, Event=None):
         self.path = self.__Entry3.get()
         thread.start_new_thread(ILectureUnit.scrape_ilectures, (self.__Entry4.get(), self.path))
-        
+
     #login and get unit list
     def __on_Button2_ButRel_1(self, Event=None):
         self.blackboard_session = BlackboardSession(self.__Entry1.get(), self.__Entry2.get())
@@ -424,13 +427,13 @@ class scrapergui(Frame):
             self.__Listbox1.insert(END, ii.name)
         for ii in self.blackboard_session.iLectureList:
             self.__Listbox2.insert(END, ii.name)
-        
+
     #GUI browse button
     def __on_Button3_ButRel_1(self, Event=None):
         filename = askdirectory()
         self.__Entry3.delete(0, END)
         self.__Entry3.insert(0, filename)
-        
+
     #scrape units selected
     def __on_Button1_ButRel_1(self, Event=None):
         self.path = self.__Entry3.get()
@@ -456,4 +459,4 @@ if __name__ == '__main__':
     Root.mainloop()
 
 
-            
+
