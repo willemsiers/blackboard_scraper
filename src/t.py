@@ -33,7 +33,7 @@ import platform
 
 
 
-
+valid_chars = '-_.() abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 #sanitizes the filenames for windows (and hopefully other OS' too!)
 def sanitize(filename):
     filename = ''.join(c for c in filename if c in valid_chars)
@@ -60,6 +60,7 @@ class ILectureUnit():
         self.name = name
         self.session = requests.Session()
 
+    # WARMING: Will skip any items without a file box. This has been known to occur for audio-only items.
     #scrapes iLectures from a particular rss feed
     #path: path of the root unit directory
     @staticmethod
@@ -80,13 +81,18 @@ class ILectureUnit():
         for current_item in items:
             print('current_item: {0!r}'.format(current_item))
             lec = {}
-            lec['file_url'] = current_item.find('enclosure').get('url')
-            lec['date'] = current_item.find('pubdate').text
-            lec['title'] = current_item.find('title').text
-            found_lecs.append(lec)
+            try:
+                lec['file_url'] = current_item.find('enclosure').get('url')
+                lec['date'] = current_item.find('pubdate').text
+                lec['title'] = current_item.find('title').text
+                found_lecs.append(lec)
+            except AttributeError as err:
+                print('Problem parsing item. Skipping it. current_item: {0!r}'.format(current_item))
+                print('err: {0!r}'.format(err))
+            continue
         # Download lectures
         for lec in found_lecs:
-            dirty_filename = '{0}.{1}'.format(lec['date'], lec['title'])
+            dirty_filename = '{0} - {1}'.format(lec['date'], lec['title'])
             clean_filename = sanitize(dirty_filename)
             ILectureUnit.fetch_video(lec['file_url'], dir, unit_name, clean_filename, path)
         # /New
@@ -120,7 +126,7 @@ class ILectureUnit():
     @staticmethod
     def fetch_video(file_url, directory, unit_name, file_name, path):
         print('ILectureUnit.fetch_video() directory: {directory!r}, unit_name:  {unit_name!r}, file_name:  {file_name!r}, path:  {path!r}'.format(directory=directory, unit_name=unit_name, file_name=file_name, path=path))
-        return
+        #return
         session = requests.Session()
         file_name = string.replace(file_name, ':', '-')
         if '.' in file_name:
