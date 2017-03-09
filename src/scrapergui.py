@@ -62,6 +62,7 @@ class ILectureUnit():
         self.name = name
         self.session = requests.Session()
 
+    # WARMING: Will skip any items without a file box. This has been known to occur for audio-only items.
     #scrapes iLectures from a particular rss feed
     #path: path of the root unit directory
     @staticmethod
@@ -70,19 +71,34 @@ class ILectureUnit():
         session = requests.Session()
         request = session.get(url)
         soup = BeautifulSoup(request.text, "html.parser")
-        alist = []
-        blist = []
+        with open('request.text.txt', 'wb') as f:
+            f.write(request.text)
+
+        # New
+        # Find lectures
+        found_lecs = []
         dir = 'iLectures'
         unit_name = soup.title.string
-        for link in soup.find_all('pubdate'):
-            strin = link.string[:-6]
-            alist.append(strin)
-        for link in soup.find_all('enclosure'):
-            blist.append(link.get('url'))
-        ii = 0
-        for jj in alist:
-            ILectureUnit.fetch_video(blist[ii], dir, unit_name, jj, path)
-            ii = ii + 1
+        items = soup.find_all('item')
+        for current_item in items:
+##            print('current_item: {0!r}'.format(current_item))
+            lec = {}
+            try:
+                lec['file_url'] = current_item.find('enclosure').get('url')
+                lec['date'] = current_item.find('pubdate').text
+                lec['title'] = current_item.find('title').text
+                found_lecs.append(lec)
+            except AttributeError as err:
+                print('Problem parsing item. Skipping it. current_item: {0!r}'.format(current_item))
+                print('err: {0!r}'.format(err))
+            continue
+        # Download lectures
+        for lec in found_lecs:
+            dirty_filename = '{0} - {1}'.format(lec['date'], lec['title'])
+            clean_filename = sanitize(dirty_filename)
+            ILectureUnit.fetch_video(lec['file_url'], dir, unit_name, clean_filename, path)
+        # /New
+        print('Finished scraping lectures.')
 
     #downloads a single iLecture video
     #file_url: the url of the video
@@ -93,6 +109,7 @@ class ILectureUnit():
     @staticmethod
     def fetch_video(file_url, directory, unit_name, file_name, path):
         print('ILectureUnit.fetch_video() directory: {directory!r}, unit_name:  {unit_name!r}, file_name:  {file_name!r}, path:  {path!r}'.format(directory=directory, unit_name=unit_name, file_name=file_name, path=path))
+##        return
         session = requests.Session()
         file_name = string.replace(file_name, ':', '-')
         if '.' in file_name:
@@ -111,7 +128,7 @@ class ILectureUnit():
         if not os.path.isdir(thepath):
             os.makedirs(thepath)
         if not os.path.exists(path + file_name):
-            print file_url
+            print('fetch_video() file_url: {0!r}'.format(file_url))
             i = session.get(file_url)
             if i.status_code == requests.codes.ok:
                 with iopen(thepath + file_name + '.m4v', 'wb') as file:
