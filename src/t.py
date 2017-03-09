@@ -154,17 +154,7 @@ class ILectureUnit():
             else:
                 return False
 
-#
-lecture_unit = ILectureUnit(
-    link='https://echo.ilecture.curtin.edu.au:8443/ess/feed?id=47354944-c1b6-4f0c-923a-233b08698f62&type=M4V',
-    name='DEBUG_VALUE_NAME'
-)
 
-# ILectureUnit.scrape_ilectures() url: 'https://echo.ilecture.curtin.edu.au:8443/ess/feed?id=47354944-c1b6-4f0c-923a-233b08698f62&type=M4V', path:  '.'
-lecture_unit.scrape_ilectures(
-    url='https://echo.ilecture.curtin.edu.au:8443/ess/feed?id=47354944-c1b6-4f0c-923a-233b08698f62&type=M4V',
-    path='test'
-)
 
 ### ILectureUnit.fetch_video() directory: 'iLectures', unit_name:  u'Human Structure and Function 100-ONGOING_313391_LR', file_name:  u'Tue, 28 Feb 2017 15:07:35', path:  '.'
 ##lecture_unit.fetch_video(
