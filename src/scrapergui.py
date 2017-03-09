@@ -57,7 +57,7 @@ def sanitize(filename):
 #class for scraping iLectures from echo360.
 class ILectureUnit():
     def __init__(self, link, name):
-        print('ILectureUnit.__init__() link: {link!r}, name:  {name!r}'.format(link=link, name=name))
+        print('ILectureUnit.__init__() link: {link!r}, name: {name!r}'.format(link=link, name=name))
         self.link = link
         self.name = name
         self.session = requests.Session()
@@ -67,7 +67,7 @@ class ILectureUnit():
     #path: path of the root unit directory
     @staticmethod
     def scrape_ilectures(url, path):
-        print('ILectureUnit.scrape_ilectures() url: {url!r}, path:  {path!r}'.format(url=url, path=path))
+        print('ILectureUnit.scrape_ilectures() url: {url!r}, path: {path!r}'.format(url=url, path=path))
         session = requests.Session()
         request = session.get(url)
         soup = BeautifulSoup(request.text, "html.parser")
@@ -108,7 +108,7 @@ class ILectureUnit():
     #path: root directory to save in
     @staticmethod
     def fetch_video(file_url, directory, unit_name, file_name, path):
-        print('ILectureUnit.fetch_video() directory: {directory!r}, unit_name:  {unit_name!r}, file_name:  {file_name!r}, path:  {path!r}'.format(directory=directory, unit_name=unit_name, file_name=file_name, path=path))
+        print('ILectureUnit.fetch_video() directory: {directory!r}, unit_name: {unit_name!r}, file_name: {file_name!r}, path: {path!r}'.format(directory=directory, unit_name=unit_name, file_name=file_name, path=path))
 ##        return
         session = requests.Session()
         file_name = string.replace(file_name, ':', '-')
