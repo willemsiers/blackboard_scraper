@@ -128,7 +128,7 @@ class ILectureUnit():
         if not os.path.isdir(thepath):
             os.makedirs(thepath)
         if not os.path.exists(path + file_name):
-            print('fetch_video() file_url: {0!r}'.format(file_url))
+            print('fetch_video() downloading file_url: {0!r}'.format(file_url))
             i = session.get(file_url)
             if i.status_code == requests.codes.ok:
                 with iopen(thepath + file_name + '.m4v', 'wb') as file:
