@@ -10,16 +10,16 @@
 #-------------------------------------------------------------------------------
 
 
-from Tkinter import *
-import Tkinter
-import tkMessageBox
-import thread
+from tkinter import *
+import tkinter
+import tkinter.messagebox
+import _thread
 import webbrowser
-from tkFileDialog import askdirectory
+from tkinter.filedialog import askdirectory
 from bs4 import BeautifulSoup
 import os
 import requests
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import datetime
 import base64
 import string
@@ -27,7 +27,7 @@ import getpass
 import multiprocessing
 import functools
 from io import open as iopen
-from urlparse import urlsplit
+from urllib.parse import urlsplit
 import platform
 
 
@@ -55,7 +55,7 @@ def sanitize(filename):
 #class for scraping iLectures from echo360.
 class ILectureUnit():
     def __init__(self, link, name):
-        print('ILectureUnit.__init__() link: {link!r}, name:  {name!r}'.format(link=link, name=name))
+        print(('ILectureUnit.__init__() link: {link!r}, name:  {name!r}'.format(link=link, name=name)))
         self.link = link
         self.name = name
         self.session = requests.Session()
@@ -65,7 +65,7 @@ class ILectureUnit():
     #path: path of the root unit directory
     @staticmethod
     def scrape_ilectures(url, path):
-        print('ILectureUnit.scrape_ilectures() url: {url!r}, path:  {path!r}'.format(url=url, path=path))
+        print(('ILectureUnit.scrape_ilectures() url: {url!r}, path:  {path!r}'.format(url=url, path=path)))
         session = requests.Session()
         request = session.get(url)
         soup = BeautifulSoup(request.text, "html.parser")
@@ -79,7 +79,7 @@ class ILectureUnit():
         unit_name = soup.title.string
         items = soup.find_all('item')
         for current_item in items:
-            print('current_item: {0!r}'.format(current_item))
+            print(('current_item: {0!r}'.format(current_item)))
             lec = {}
             try:
                 lec['file_url'] = current_item.find('enclosure').get('url')
@@ -87,8 +87,8 @@ class ILectureUnit():
                 lec['title'] = current_item.find('title').text
                 found_lecs.append(lec)
             except AttributeError as err:
-                print('Problem parsing item. Skipping it. current_item: {0!r}'.format(current_item))
-                print('err: {0!r}'.format(err))
+                print(('Problem parsing item. Skipping it. current_item: {0!r}'.format(current_item)))
+                print(('err: {0!r}'.format(err)))
             continue
         # Download lectures
         for lec in found_lecs:
@@ -125,7 +125,7 @@ class ILectureUnit():
     #path: root directory to save in
     @staticmethod
     def fetch_video(file_url, directory, unit_name, file_name, path):
-        print('ILectureUnit.fetch_video() directory: {directory!r}, unit_name:  {unit_name!r}, file_name:  {file_name!r}, path:  {path!r}'.format(directory=directory, unit_name=unit_name, file_name=file_name, path=path))
+        print(('ILectureUnit.fetch_video() directory: {directory!r}, unit_name:  {unit_name!r}, file_name:  {file_name!r}, path:  {path!r}'.format(directory=directory, unit_name=unit_name, file_name=file_name, path=path)))
         #return
         session = requests.Session()
         file_name = string.replace(file_name, ':', '-')
@@ -145,7 +145,7 @@ class ILectureUnit():
         if not os.path.isdir(thepath):
             os.makedirs(thepath)
         if not os.path.exists(path + file_name):
-            print('fetch_video() file_url: {0!r}'.format(file_url))
+            print(('fetch_video() file_url: {0!r}'.format(file_url)))
             return# REMOVEME
             i = session.get(file_url)
             if i.status_code == requests.codes.ok:

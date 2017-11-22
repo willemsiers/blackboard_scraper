@@ -1,16 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from Tkinter import *
-import Tkinter
-import tkMessageBox
-import thread
+from tkinter import *
+import tkinter
+import tkinter.messagebox
+import _thread
 import webbrowser
-from tkFileDialog import askdirectory
+from tkinter.filedialog import askdirectory
 from bs4 import BeautifulSoup
 import os
 import requests
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import datetime
 import base64
 import string
@@ -18,7 +18,7 @@ import getpass
 import multiprocessing
 import functools
 from io import open as iopen
-from urlparse import urlsplit
+from urllib.parse import urlsplit
 import platform
 if "Darwin" in platform.system():
 		os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "Python" to true' ''')
@@ -90,7 +90,7 @@ def requests_image(
 		urlpath = i.url
 	name = urlsplit(urlpath)[2].split('/')
 	name = name[len(name)-1]
-	name = urllib2.unquote(name).decode('utf8')
+	name = urllib.parse.unquote(name).decode('utf8')
 	while ((len(thepath + name) > 240) or (len(name) > 50)):
 		if "." in name:
 			filename = name.split('.')
@@ -103,7 +103,7 @@ def requests_image(
 			name = name[:-1]
 	name = sanitize(name)
 	if not os.path.exists(thepath + name):
-		print urlpath
+		print(urlpath)
 		i = s.get(urlpath)
 		if i.status_code == requests.codes.ok:
 			with iopen(thepath + name, 'wb') as file:
@@ -143,7 +143,7 @@ def requests_video(
 	if not os.path.isdir(thepath):
 		os.makedirs(thepath)
 	if not os.path.exists(path + file_name):
-		print file_url
+		print(file_url)
 		i = s.get(file_url)
 		if i.status_code == requests.codes.ok:
 			with iopen(thepath + file_name + '.m4v', 'wb') as file:
@@ -318,7 +318,7 @@ def scrape(
 						)
 			except:
 				pass
-	print o + ' has finished'
+	print(o + ' has finished')
 
 #starts the login session
 def login(user, password):
@@ -385,7 +385,7 @@ class loading(Frame):
 
 	def __init__(self, Master=None, **kw):
 		self.__loadpoint = 0
-		apply(Frame.__init__, (self, Master), kw)
+		Frame.__init__(*(self, Master), **kw)
 		self.__Frame2 = Frame(self)
 		self.__Frame2.pack(side='top', padx=5, pady=0)
 		self.__Label3 = Label(self.__Frame2, text='Loading...')
@@ -421,7 +421,7 @@ class scrapergui(Frame):
 
 		#
 
-		apply(Frame.__init__, (self, Master), kw)
+		Frame.__init__(*(self, Master), **kw)
 		self.__RootObj = Frame
 		self.__Frame2 = Frame(self)
 		self.__Frame2.pack(side='top', padx=5, pady=0)
@@ -531,7 +531,7 @@ class scrapergui(Frame):
 		global s
 		global path
 		path = self.__Entry3.get()
-		thread.start_new_thread(ilec, (self.__Entry4.get(), s, path))
+		_thread.start_new_thread(ilec, (self.__Entry4.get(), s, path))
 	#login and get unit list
 	def __on_Button2_ButRel_1(self, Event=None):
 		global s
@@ -566,7 +566,7 @@ class scrapergui(Frame):
 		for unit in map(int, self.__Listbox1.curselection()):
 			uid = unitlist[unit][0]
 			uname = unitlist[unit][1]
-			thread.start_new_thread(scrape, (uid, s, uname, path))
+			_thread.start_new_thread(scrape, (uid, s, uname, path))
 
 
 	#
